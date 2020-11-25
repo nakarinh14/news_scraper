@@ -4,7 +4,7 @@ from source.posttoday import Posttoday
 from source.blognone import Blognone
 
 builders = {
-    # 'thairath': Thairath,
+    'thairath': Thairath,
     'sanook': Sanook,
     'posttoday': Posttoday,
     'blognone': Blognone
