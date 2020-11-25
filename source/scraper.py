@@ -1,6 +1,7 @@
-import database as db
+from . import database as db
 import requests
 from lxml import etree
+from math import ceil
 # Abstract class for Scraper
 
 class Scraper:
@@ -15,7 +16,7 @@ class Scraper:
 
     def execute(self):
         # Interface. Override on extend
-        return (None, None)
+        return ("", [])
 
     def getLatestUrl(self, query:str = "SELECT url FROM news_source WHERE publisher=%s ORDER BY timestamp DESC LIMIT 1;", values:list = None):
         values = (self.publisher,) if values is None else values
@@ -23,7 +24,12 @@ class Scraper:
 
     def insertDB(self):
         insert_query, news_data = self.execute()
-        db.insert_batch(insert_query, news_data)
+        if isinstance(insert_query, str):
+            db.insert_batch(insert_query, news_data)
+        elif isinstance(insert_query, list):
+            n = insert_query[1]
+            for batch in range(ceil(len(news_data) / n)):
+                db.insert_batch(insert_query[0], news_data[batch*n : (batch+1)*n])
 
 class XmlScraper(Scraper):
     

@@ -1,4 +1,4 @@
-from scraper import XmlScraper
+from .scraper import XmlScraper
 import datetime as dt
 from tqdm import trange
 import time
@@ -18,24 +18,26 @@ class Thairath(XmlScraper):
         NS = {
             's': "http://www.sitemaps.org/schemas/sitemap/0.9", 
             'image':"http://www.google.com/schemas/sitemap-image/1.1"
-            }
+        }
         parsed_elements = self.lxml_xpath("//s:url/s:loc | //image:image/image:loc | //image:image/image:title | //image:image/image:caption", namespaces=NS)
         news_data = []
         latest_url = self.getLatestUrl()
-        timestamp = dt.datetime.now()
 
         for i in trange(int(len(parsed_elements)/4)):
             news_url, img_url, title  = parsed_elements[(i*4)].text, parsed_elements[(i*4)+1].text, parsed_elements[(i*4)+2].text
+
             if latest_url is not None and news_url == latest_url:
-                print(f"Duplicate found... Stopping {self.publisher}")
+                print(f"[{self.publisher.upper()}] Duplicate found. Stopping...")
                 break
 
             url_split = news_url.split("/")
             category = url_split[4] if url_split[3] == "news" else url_split[3]
             timestamp = self.getDate(news_url, category)  # Parse data for Thairath, as date is not given in XML
+
             if timestamp is None:
-                print(f"Timestamp is parsed None at {news_url}.. Skipping")
+                print(f"[{self.publisher.upper()}] Timestamp is parsed None at {news_url}. Skipping...")
                 continue
+
             time.sleep(5+(5*random.random()))
             news_data.append((news_url, img_url, category, timestamp, title, self.publisher))
 

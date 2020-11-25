@@ -1,4 +1,4 @@
-from scraper import XmlScraper
+from .scraper import XmlScraper
 import datetime as dt
 
 class Sanook(XmlScraper):
@@ -23,7 +23,7 @@ class Sanook(XmlScraper):
             category = ''
             timestamp = dt.datetime.strptime(time, "%Y-%m-%dT%H:%M:%S%z")
             if latest_url is not None and news_url == latest_url:
-                print(f"Duplicate found... Stopping {self.publisher}")
+                print(f"[{self.publisher.upper()}] Duplicate found. Stopping...")
                 break
             news_data.append((news_url, img_url, category, timestamp, title, self.publisher))
 

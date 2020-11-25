@@ -1,6 +1,6 @@
-from scraper import XmlScraper
+from .scraper import XmlScraper
 import datetime as dt
-from news_utils import strip_text
+from .news_utils import strip_text
 
 class Posttoday(XmlScraper):
     
@@ -29,7 +29,7 @@ class Posttoday(XmlScraper):
                 time = strip_text(parsed_elements[(i*4)+3].text)
                 timestamp = dt.datetime.strptime(time, "%a, %d %b %Y %H:%M:%S %z")
                 if latest_url is not None and news_url == latest_url:
-                    print(f"Duplicate found... Stopping {self.publisher}")
+                    print(f"[{self.publisher.upper()}] Duplicate found. Stopping...")
                     break
                 news_data.append((news_url, category, timestamp, title, self.publisher))
 

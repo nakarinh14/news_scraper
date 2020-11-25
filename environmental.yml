@@ -1,4 +1,0 @@
-name: news_agg
-channels:
-  - defaults
-prefix: /Users/admin/miniconda3/envs/news_agg

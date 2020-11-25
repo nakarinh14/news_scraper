@@ -1,19 +1,21 @@
 from bs4 import BeautifulSoup
-from scraper import Scraper
+from .scraper import Scraper
 import time
 import random
 import datetime as dt
-    
+import pytz
+
 class Blognone(Scraper):
 
     def __init__(self):
         super().__init__("blognone")
+        self.tz = pytz.timezone('Asia/Bangkok')
     
     def execute(self):
         base_url = "https://www.blognone.com/node?page="
         news_data, count = [], 0
         latest_url = self.getLatestUrl()
-        curr_date = dt.datetime.now()
+        curr_date = dt.datetime.now(self.tz)
         stop_execute = False
         while not stop_execute:
             res = self.get_request(base_url+str(count))
@@ -22,11 +24,11 @@ class Blognone(Scraper):
             for post in posts:
                 # Get all the required information
                 if(self.isSponsored(post)):
-                    print("Blognone: skipping sponsored")
+                    print("[BLOGNONE] Skipping Sponsored Post")
                     continue
                 news_url, title, img_url, timestamp = self.parseNode(post)
-                if (latest_url is not None and news_url == latest_url):
-                    print(f"Duplicate found... Stopping {self.publisher}")
+                if (latest_url is not None and news_url == latest_url or (curr_date - timestamp).days >= 5):
+                    print(f"[{self.publisher.upper()}] Duplicate found. Stopping...")
                     stop_execute = True
                     break
                 news_data.append((news_url, img_url, "tech", timestamp, title, self.publisher))
@@ -43,12 +45,12 @@ class Blognone(Scraper):
         title = title_box.find("a").string
         img = node.find("div", class_="node-image").find("img")['src']
         date = node.find("span", class_="submitted").get_text().split("  on ")[1]
-        parse_date = dt.datetime.strptime(date, "%d %B %Y - %H:%M")
+        parse_date = dt.datetime.strptime(date, "%d %B %Y - %H:%M").replace(tzinfo=self.tz)
 
         return news_url, title, img, parse_date
     def isSponsored(self, node):
         username = node.find("span", class_="username")
-        return username.string == "sponsored"
+        return username.string in ["sponsored", "workplace"]
 
 if __name__ == "__main__":
     scraper = Blognone()
