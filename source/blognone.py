@@ -20,7 +20,7 @@ class Blognone(Scraper):
         while not stop_execute:
             res = self.get_request(base_url+str(count))
             soup = BeautifulSoup(res.text, 'html.parser')
-            posts = soup.find("div", id="block-system-main").find_all("div", {"class": ["node","clearfix"]})
+            posts = soup.find("div", id="block-system-main").find_all("div", class_ = "node clearfix")
             for post in posts:
                 # Get all the required information
                 if(self.isSponsored(post)):

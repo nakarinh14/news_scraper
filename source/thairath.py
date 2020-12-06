@@ -5,6 +5,7 @@ import time
 import random
 from bs4 import BeautifulSoup
 import dateparser as dp
+import pytz
 
 class Thairath(XmlScraper):
     
@@ -13,6 +14,7 @@ class Thairath(XmlScraper):
             "https://www.thairath.co.th/sitemap-daily.xml",
             "thairath"
         )
+        self.tz = pytz.timezone('Asia/Bangkok')
     
     def execute(self):
         NS = {
@@ -62,7 +64,7 @@ class Thairath(XmlScraper):
 
             parsed_date = dateparser.get_date_data(date, ["%d %b %y %H:%M น."])['date_obj']
             parsed_date = parsed_date.replace(year=parsed_date.year-543)
-            return parsed_date
+            return self.tz.localize(parsed_date)
         
         except AttributeError as e:
             print(e)
